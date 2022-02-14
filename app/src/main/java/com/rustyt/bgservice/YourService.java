@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
@@ -24,13 +25,36 @@ public class YourService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+    Sync sync = new Sync(call,5*1000);
         Log.i("YourService Listened", "Service tried to started");
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
             startMyOwnForeground();
         else
             startForeground(1, new Notification());
+
     }
+
+
+    final private Runnable call = new Runnable() {
+        public void run() {
+            //This is where my sync code will be, but for testing purposes I only have a Log statement
+            Log.v("test","this will run every 5 sec");
+            handler.postDelayed(call,5*1000);
+        }
+    };
+    public final Handler handler = new Handler();
+public class Sync {
+
+
+    Runnable task;
+
+    public Sync(Runnable task, long time) {
+        this.task = task;
+        handler.removeCallbacks(task);
+        handler.postDelayed(task, time);
+    }
+}
     @Override
     public void onTaskRemoved(Intent rootIntent){
         Log.i("YourService Listened", "Service tried to on task");
